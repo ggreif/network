@@ -151,7 +151,7 @@ testGetPeerCred =
 
     serverSetup = do
         sock <- socket AF_UNIX Stream defaultProtocol
-        bindSocket sock $ SockAddrUnix addr 
+        bind sock $ SockAddrUnix addr 
         listen sock 1
         return sock
 
@@ -181,7 +181,7 @@ testGetPeerEid =
 
     serverSetup = do
         sock <- socket AF_UNIX Stream defaultProtocol
-        bindSocket sock $ SockAddrUnix addr 
+        bind sock $ SockAddrUnix addr 
         listen sock 1
         return sock
 
@@ -292,7 +292,7 @@ tcpTest clientAct serverAct = do
         sock <- socket AF_INET Stream defaultProtocol
         setSocketOption sock ReuseAddr 1
         addr <- inet_addr serverAddr
-        bindSocket sock (SockAddrInet aNY_PORT addr)
+        bind sock (SockAddrInet aNY_PORT addr)
         listen sock 1
         serverPort <- socketPort sock
         putMVar portVar serverPort
@@ -320,7 +320,7 @@ udpTest clientAct serverAct = do
         sock <- socket AF_INET Datagram defaultProtocol
         setSocketOption sock ReuseAddr 1
         addr <- inet_addr serverAddr
-        bindSocket sock (SockAddrInet aNY_PORT addr)
+        bind sock (SockAddrInet aNY_PORT addr)
         serverPort <- socketPort sock
         putMVar portVar serverPort
         return sock
