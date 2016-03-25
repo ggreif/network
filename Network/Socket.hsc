@@ -157,13 +157,6 @@ module Network.Socket
 
     -- * Deprecated aliases
     -- $deprecated-aliases
-    , bindSocket
-    , sClose
-    , sIsConnected
-    , sIsBound
-    , sIsListening
-    , sIsReadable
-    , sIsWritable
 
     -- * Internal
 
@@ -1608,34 +1601,6 @@ foreign import CALLCONV unsafe "getpeereid"
 -- $deprecated-aliases
 --
 -- These aliases are deprecated and should not be used in new code.
--- They will be removed in some future version of the package.
+-- There are currently none.
 
--- | Deprecated alias for 'bind'.
-bindSocket :: Socket    -- Unconnected Socket
-           -> SockAddr  -- Address to Bind to
-           -> IO ()
-bindSocket = bind
 
--- | Deprecated alias for 'close'.
-sClose :: Socket -> IO ()
-sClose = close
-
--- | Deprecated alias for 'isConnected'.
-sIsConnected :: Socket -> IO Bool
-sIsConnected = isConnected
-
--- | Deprecated alias for 'isBound'.
-sIsBound :: Socket -> IO Bool
-sIsBound = isBound
-
--- | Deprecated alias for 'isListening'.
-sIsListening :: Socket -> IO Bool
-sIsListening = isListening
-
--- | Deprecated alias for 'isReadable'.
-sIsReadable  :: Socket -> IO Bool
-sIsReadable = isReadable
-
--- | Deprecated alias for 'isWritable'.
-sIsWritable  :: Socket -> IO Bool
-sIsWritable = isWritable
