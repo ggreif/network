@@ -322,8 +322,8 @@ withIOVec cs f =
 -- >        listen sock 1
 -- >        (conn, _) <- accept sock
 -- >        talk conn
--- >        sClose conn
--- >        sClose sock
+-- >        close conn
+-- >        close sock
 -- >
 -- >     where
 -- >       talk :: Socket -> IO ()
@@ -346,6 +346,6 @@ withIOVec cs f =
 -- >        connect sock (addrAddress serveraddr)
 -- >        sendAll sock $ C.pack "Hello, world!"
 -- >        msg <- recv sock 1024
--- >        sClose sock
+-- >        close sock
 -- >        putStr "Received "
 -- >        C.putStrLn msg

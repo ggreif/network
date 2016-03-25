@@ -17,8 +17,8 @@ main = withSocketsDo $
        listen sock 1
        (conn, _) <- accept sock
        talk conn
-       sClose conn
-       sClose sock
+       close conn
+       close sock
 
     where
       talk :: Socket -> IO ()

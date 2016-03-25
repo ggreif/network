@@ -137,7 +137,7 @@ testUserTimeout = do
       getSocketOption sock UserTimeout >>= (@=?) 1000
       setSocketOption sock UserTimeout 2000
       getSocketOption sock UserTimeout >>= (@=?) 2000
-      sClose sock
+      close sock
 
 {-
 testGetPeerCred:: Assertion
@@ -158,7 +158,7 @@ testGetPeerCred =
     server sock = do
         (clientSock, _) <- accept sock
         serverAct clientSock
-        sClose clientSock
+        close clientSock
 
     addr = "/tmp/testAddr1"
     clientAct sock = withSocketsDo $ do  
@@ -188,7 +188,7 @@ testGetPeerEid =
     server sock = do
         (clientSock, _) <- accept sock
         serverAct clientSock
-        sClose clientSock
+        close clientSock
 
     addr = "/tmp/testAddr2"
     clientAct sock = withSocketsDo $ do  
@@ -301,7 +301,7 @@ tcpTest clientAct serverAct = do
     server sock = do
         (clientSock, _) <- accept sock
         serverAct clientSock
-        sClose clientSock
+        close clientSock
 
 -- | Create an unconnected 'Socket' for sending UDP and receiving
 -- datagrams and then run 'clientAct' and 'serverAct'.
@@ -336,7 +336,7 @@ test clientSetup clientAct serverSetup serverAct = do
     client tid barrier
   where
     server barrier = do
-        E.bracket serverSetup sClose $ \sock -> do
+        E.bracket serverSetup close $ \sock -> do
             serverReady
             serverAct sock
             putMVar barrier ()
@@ -347,7 +347,7 @@ test clientSetup clientAct serverSetup serverAct = do
     client tid barrier = do
         takeMVar barrier
         -- Transfer exceptions to the main thread.
-        bracketWithReraise tid clientSetup sClose $ \res -> do
+        bracketWithReraise tid clientSetup close $ \res -> do
             clientAct res
             takeMVar barrier
 
