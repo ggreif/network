@@ -43,6 +43,13 @@ homepage:       https://github.com/haskell/network
 bug-reports:    https://github.com/haskell/network/issues
 tested-with:   GHC == 7.0.4, GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.1, GHC == 7.10.2, GHC == 8.0.1
 
+flag CAN
+  description: Enable Controller Area Network
+
+flag LINX
+  description: Enable The LINX for Linux communication protocol
+  default:     False
+
 library
   exposed-modules:
     Network
@@ -54,6 +61,12 @@ library
   other-modules:
     Network.Socket.ByteString.Internal
     Network.Socket.Types
+
+  if !flag(CAN)
+    cc-options: -DNETWORK_DISABLE_CAN
+
+  if !flag(LINX)
+    cc-options: -DNETWORK_DISABLE_LINX
 
   if !os(windows)
     other-modules:

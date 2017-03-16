@@ -301,10 +301,10 @@ instance Show SockAddr where
    . showString "]:"
    . shows port
 #endif
-#if defined(CAN_SOCKET_SUPPORT)
+#if defined(CAN_SOCKET_SUPPORT) || defined(NETWORK_DISABLE_CAN)
   showsPrec _ (SockAddrCan ifidx) = shows ifidx
 #endif
-#if defined(LINX_SOCKET_SUPPORT)
+#if defined(LINX_SOCKET_SUPPORT) || defined(NETWORK_DISABLE_LINX)
   showsPrec _ (SockAddrLinx spid) = shows spid
 #endif
 

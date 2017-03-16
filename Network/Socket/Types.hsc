@@ -725,10 +725,10 @@ unpackFamily f = case f of
 #ifdef AF_BLUETOOTH
         (#const AF_BLUETOOTH) -> AF_BLUETOOTH
 #endif
-#ifdef AF_CAN
+#if defined(AF_CAN) && !defined(NETWORK_DISABLE_CAN)
         (#const AF_CAN) -> AF_CAN
 #endif
-#ifdef AF_LINX
+#if defined(AF_LINX) && !defined(NETWORK_DISABLE_LINX)
         (#const AF_LINX) -> AF_LINX
 #endif
         unknown -> error ("Network.Socket.unpackFamily: unknown address " ++
@@ -891,9 +891,13 @@ sizeOfSockAddr (SockAddrInet6 _ _ _ _) = #const sizeof(struct sockaddr_in6)
 #endif
 #if defined(CAN_SOCKET_SUPPORT)
 sizeOfSockAddr (SockAddrCan _) = #const sizeof(struct sockaddr_can)
+#elif defined(NETWORK_DISABLE_CAN)
+sizeOfSockAddr (SockAddrCan _) = 0
 #endif
 #if defined(LINX_SOCKET_SUPPORT)
 sizeOfSockAddr (SockAddrLinx _) = #const sizeof(struct sockaddr_linx)
+#elif defined(NETWORK_DISABLE_LINX)
+sizeOfSockAddr (SockAddrLinx _) = 0
 #endif
 
 -- | Computes the storage requirements (in bytes) required for a
@@ -985,10 +989,14 @@ pokeSockAddr p (SockAddrCan ifIndex) = do
     zeroMemory p (#const sizeof(struct sockaddr_can))
 #endif
     (#poke struct sockaddr_can, can_ifindex) p ifIndex
+#elif defined(NETWORK_DISABLE_CAN)
+pokeSockAddr _ (SockAddrCan _) = return ()
 #endif
 #if defined(LINX_SOCKET_SUPPORT)
 pokeSockAddr p (SockAddrLinx spid) = do
     (#poke struct sockaddr_linx, spid) p spid
+#elif defined(NETWORK_DISABLE_LINX)
+pokeSockAddr _ (SockAddrLinx _) = return ()
 #endif
 -- | Read a 'SockAddr' from the given memory location.
 peekSockAddr :: Ptr SockAddr -> IO SockAddr
