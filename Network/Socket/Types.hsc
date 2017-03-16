@@ -306,6 +306,7 @@ data Family
     | AF_WANPIPE          -- Wanpipe API sockets
     | AF_BLUETOOTH        -- bluetooth sockets
     | AF_CAN              -- Controller Area Network
+    | AF_LINX             -- The LINX for Linux communication protocol
       deriving (Eq, Ord, Read, Show)
 
 packFamily :: Family -> CInt
@@ -520,6 +521,9 @@ packFamily' f = case Just f of
 #ifdef AF_CAN
     Just AF_CAN -> Just #const AF_CAN
 #endif
+#ifdef AF_LINX
+    Just AF_LINX -> Just #const AF_LINX
+#endif
     _ -> Nothing
 
 --------- ----------
@@ -724,6 +728,9 @@ unpackFamily f = case f of
 #ifdef AF_CAN
         (#const AF_CAN) -> AF_CAN
 #endif
+#ifdef AF_LINX
+        (#const AF_LINX) -> AF_LINX
+#endif
         unknown -> error ("Network.Socket.unpackFamily: unknown address " ++
                           "family " ++ show unknown)
 
@@ -832,6 +839,8 @@ data SockAddr       -- C Names
         String          -- sun_path
   | SockAddrCan
         Int32           -- can_ifindex (can be get by Network.BSD.ifNameToIndex "can0")
+  | SockAddrLinx
+        Word32           -- LINX_SPID
         -- TODO: Extend this to include transport protocol information
   deriving (Eq, Ord, Typeable)
 
@@ -848,8 +857,13 @@ isSupportedSockAddr addr = case addr of
 #if defined(CAN_SOCKET_SUPPORT)
   SockAddrCan{} -> True
 #endif
+#if defined(LINX_SOCKET_SUPPORT)
+  SockAddrLinx{} -> True
+#endif
 #if !(defined(IPV6_SOCKET_SUPPORT) \
-      && defined(DOMAIN_SOCKET_SUPPORT) && defined(CAN_SOCKET_SUPPORT))
+      && defined(DOMAIN_SOCKET_SUPPORT) \
+      && defined(CAN_SOCKET_SUPPORT) \
+      && defined(LINX_SOCKET_SUPPORT))
   _ -> False
 #endif
 
@@ -878,6 +892,9 @@ sizeOfSockAddr (SockAddrInet6 _ _ _ _) = #const sizeof(struct sockaddr_in6)
 #if defined(CAN_SOCKET_SUPPORT)
 sizeOfSockAddr (SockAddrCan _) = #const sizeof(struct sockaddr_can)
 #endif
+#if defined(LINX_SOCKET_SUPPORT)
+sizeOfSockAddr (SockAddrLinx _) = #const sizeof(struct sockaddr_linx)
+#endif
 
 -- | Computes the storage requirements (in bytes) required for a
 -- 'SockAddr' with the given 'Family'.
@@ -891,6 +908,9 @@ sizeOfSockAddrByFamily AF_INET6 = #const sizeof(struct sockaddr_in6)
 sizeOfSockAddrByFamily AF_INET  = #const sizeof(struct sockaddr_in)
 #if defined(CAN_SOCKET_SUPPORT)
 sizeOfSockAddrByFamily AF_CAN   = #const sizeof(struct sockaddr_can)
+#endif
+#if defined(LINX_SOCKET_SUPPORT)
+sizeOfSockAddrByFamily AF_LINX  = #const sizeof(struct sockaddr_linx)
 #endif
 sizeOfSockAddrByFamily family =
     error $ "sizeOfSockAddrByFamily: " ++ show family ++ " not supported."
@@ -966,7 +986,10 @@ pokeSockAddr p (SockAddrCan ifIndex) = do
 #endif
     (#poke struct sockaddr_can, can_ifindex) p ifIndex
 #endif
-
+#if defined(LINX_SOCKET_SUPPORT)
+pokeSockAddr p (SockAddrLinx spid) = do
+    (#poke struct sockaddr_linx, spid) p spid
+#endif
 -- | Read a 'SockAddr' from the given memory location.
 peekSockAddr :: Ptr SockAddr -> IO SockAddr
 peekSockAddr p = do
@@ -993,6 +1016,11 @@ peekSockAddr p = do
     (#const AF_CAN) -> do
         ifidx <- (#peek struct sockaddr_can, can_ifindex) p
         return (SockAddrCan ifidx)
+#endif
+#if defined(LINX_SOCKET_SUPPORT)
+    (#const AF_LINX) -> do
+        spid <- (#peek struct sockaddr_linx, spid) p
+        return (SockAddrLinx spid)
 #endif
     _ -> throwIO $ userError $ "peekSockAddr: " ++ show family ++ " not supported on this platform."
 

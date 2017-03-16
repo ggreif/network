@@ -37,6 +37,7 @@ dnl ** check for specific header (.h) files that we are interested in
 AC_CHECK_HEADERS([fcntl.h limits.h stdlib.h sys/types.h unistd.h winsock2.h ws2tcpip.h])
 AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h netinet/tcp.h sys/socket.h sys/uio.h sys/un.h linux/can.h linux/tcp.h])
 AC_CHECK_HEADERS([net/if.h])
+AC_CHECK_HEADERS([linx.h linx_types.h linx_socket.h])
 
 AC_CHECK_FUNCS([readlink symlink if_nametoindex])
 

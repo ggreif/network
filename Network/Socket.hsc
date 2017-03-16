@@ -304,6 +304,9 @@ instance Show SockAddr where
 #if defined(CAN_SOCKET_SUPPORT)
   showsPrec _ (SockAddrCan ifidx) = shows ifidx
 #endif
+#if defined(LINX_SOCKET_SUPPORT)
+  showsPrec _ (SockAddrLinx spid) = shows spid
+#endif
 
 -----------------------------------------------------------------------------
 -- Connection Functions

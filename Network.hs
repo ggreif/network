@@ -300,6 +300,11 @@ accept sock@(MkSocket _ AF_INET6 _ _ _) = do
 #else
                  SockAddrCan {}        -> throwIO $ userError "accept: socket address not supported on this platform."
 #endif
+#if defined(LINX_SOCKET_SUPPORT)
+                 SockAddrLinx {}       -> throwIO $ userError "accept: unsupported for LINX peer."
+#else
+                 SockAddrLinx {}       -> throwIO $ userError "accept: socket address not supported on this platform."
+#endif
  handle <- socketToHandle sock' ReadWriteMode
  let port = case addr of
               SockAddrInet  p _     -> p
@@ -413,6 +418,7 @@ socketPort s = do
       SockAddrUnix path        -> return $ UnixSocket path
 #endif
       SockAddrCan {}           -> throwIO $ userError "socketPort: CAN address not supported."
+      SockAddrLinx {}          -> throwIO $ userError "socketPort: LINX address not supported."
 
 -- ---------------------------------------------------------------------------
 -- Utils
